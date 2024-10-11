@@ -1,23 +1,31 @@
 #!/bin/sh
 set -e
 
-# Check if .env file exists, if not, copy from .env.example
-if [ ! -f .env ]; then
-    echo ".env file not found. Copying from .env.example..."
+echo "Current working directory: $(pwd)"
+echo "Contents of current directory:"
+ls -la
+
+echo "Contents of .env file before processing:"
+cat .env
+
+# Check if .env file exists and is valid
+if [ ! -f .env ] || ! grep -q '^APP_KEY=' .env; then
+    echo ".env file is missing or invalid. Creating from .env.example..."
     cp .env.example .env
+    php artisan key:generate --no-interaction --force
 fi
 
-# Update .env file with environment variables
-env | while IFS='=' read -r key value; do
-    if grep -q "^${key}=" .env; then
-        sed -i "s|^${key}=.*|${key}=${value}|" .env
-    else
-        echo "${key}=${value}" >> .env
-    fi
-done
+echo "Contents of .env file after processing:"
+cat .env
 
-# Generate app key if not set
-php artisan key:generate --no-interaction --force
+# Install Composer dependencies if vendor directory is empty
+if [ -z "$(ls -A vendor)" ]; then
+    echo "Vendor directory is empty. Installing dependencies..."
+    composer install --no-scripts
+fi
+
+# Generate optimized autoload files
+composer dump-autoload --optimize
 
 # Run database migrations
 php artisan migrate --force
