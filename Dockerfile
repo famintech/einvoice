@@ -34,6 +34,9 @@ RUN echo "Contents of /var/www after copying:" && ls -la /var/www
 # Copy .env.example to .env
 COPY .env.example .env
 
+# print the .env file contents
+RUN cat .env
+
 # Print .env file contents
 RUN echo "Contents of .env file:" && cat .env
 
