@@ -62,3 +62,6 @@ RUN echo "Final contents of /var/www:" && ls -la /var/www
 # Expose port 9000 and set the entrypoint
 EXPOSE 9000
 ENTRYPOINT ["docker-entrypoint.sh"]
+
+# print the .env file contents
+RUN cat .env
