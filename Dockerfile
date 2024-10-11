@@ -52,6 +52,8 @@ RUN composer dump-autoload --optimize
 # Change ownership
 RUN chown -R www-data:www-data /var/www
 
+COPY php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+
 # Create a script to run migrations and start PHP-FPM
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
@@ -62,6 +64,3 @@ RUN echo "Final contents of /var/www:" && ls -la /var/www
 # Expose port 9000 and set the entrypoint
 EXPOSE 9000
 ENTRYPOINT ["docker-entrypoint.sh"]
-
-# print the .env file contents
-RUN cat .env
