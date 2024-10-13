@@ -5,11 +5,18 @@ namespace App\Http\Controllers\Platform;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class LoginTaxpayer extends Controller
 {
     public function getAccessToken()
     {
+        Log::info('Attempting to get access token');
+        Log::info('API Base URL: ' . config('api.base_url'));
+        Log::info('Client ID: ' . config('api.client_id'));
+        // Don't log the full client secret for security reasons
+        Log::info('Client Secret: ' . substr(config('api.client_secret'), 0, 5) . '...');
+
         $response = Http::withHeaders([
             'Content-Type' => 'application/x-www-form-urlencoded',
             'Accept' => '*/*',
@@ -21,6 +28,9 @@ class LoginTaxpayer extends Controller
             'grant_type' => 'client_credentials',
             'scope' => 'InvoicingAPI',
         ]);
+
+        Log::info('Response status: ' . $response->status());
+        Log::info('Response body: ' . $response->body());
     
         if ($response->successful()) {
             return $response->json();
