@@ -26,8 +26,17 @@ RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Copy composer.json and composer.lock
+COPY composer.json composer.lock ./
+
+# Install project dependencies
+RUN composer install --no-scripts --no-autoloader
+
 # Copy existing application directory contents
 COPY . /var/www/html
+
+# Generate autoload files
+RUN composer dump-autoload
 
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www/html
