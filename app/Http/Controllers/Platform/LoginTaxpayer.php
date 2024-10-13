@@ -21,11 +21,16 @@ class LoginTaxpayer extends Controller
             'grant_type' => 'client_credentials',
             'scope' => 'InvoicingAPI',
         ]);
-
+    
         if ($response->successful()) {
             return $response->json();
         }
-
-        return response()->json(['error' => 'Failed to obtain access token'], $response->status());
+    
+        // Return more detailed error information
+        return response()->json([
+            'error' => 'Failed to obtain access token',
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ], $response->status());
     }
 }
