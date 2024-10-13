@@ -1,4 +1,8 @@
+# Use an official PHP-FPM image as a parent image
 FROM php:8.1-fpm
+
+# Set working directory
+WORKDIR /var/www/html
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -16,51 +20,27 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Get latest Composer
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
-WORKDIR /var/www
-
-# Print directory contents before copying
-RUN echo "Contents of /var/www before copying:" && ls -la /var/www
-
 # Copy existing application directory contents
-COPY . /var/www
+COPY . /var/www/html
 
-# Print directory contents after copying
-RUN echo "Contents of /var/www after copying:" && ls -la /var/www
+# Copy existing application directory permissions
+COPY --chown=www-data:www-data . /var/www/html
 
-# Copy .env.example to .env
-COPY .env.example .env
+# Create .env file if it doesn't exist
+RUN if [ ! -f .env ]; then cp .env.example .env; fi
 
-# print the .env file contents
-RUN cat .env
+# Generate application key
+RUN php artisan key:generate --ansi
 
-# Print .env file contents
-RUN echo "Contents of .env file:" && cat .env
+# Set permissions for storage and bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache
 
-# Install dependencies
-RUN composer install --no-scripts --no-autoloader
+# Change current user to www-data
+USER www-data
 
-# Print vendor directory contents
-RUN echo "Contents of vendor directory:" && ls -la vendor
-
-# Generate optimized autoload files
-RUN composer dump-autoload --optimize
-
-# Change ownership
-RUN chown -R www-data:www-data /var/www
-
-COPY php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
-
-# Create a script to run migrations and start PHP-FPM
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-# Print final directory contents
-RUN echo "Final contents of /var/www:" && ls -la /var/www
-
-# Expose port 9000 and set the entrypoint
+# Expose port 9000 and start php-fpm server
 EXPOSE 9000
-ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["php-fpm"]
