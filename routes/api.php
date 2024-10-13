@@ -21,4 +21,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/test', [TestingController::class, 'index']);
+
 Route::post('/get-access-token', [LoginTaxpayer::class, 'getAccessToken']);
