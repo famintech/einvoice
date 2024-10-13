@@ -16,4 +16,6 @@ yarn-error.log
 /.vscode
 .cursorignore
 default.conf
+secrets/*
+secrets
 
