@@ -19,25 +19,37 @@ class LoginTaxpayer extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'userId' => 'required|string',
-            'userType' => 'required|string|in:taxpayer,intermediary',
-        ]);
+        Log::info('Login attempt', $request->all());
 
-        $userId = $request->input('userId');
-        $userType = $request->input('userType');
-
-        $tokenData = $this->tokenService->getToken($userType, $userId);
-
-        if ($tokenData && isset($tokenData['access_token'])) {
-            return response()->json([
-                'access_token' => $tokenData['access_token'],
-                'expires_in' => $tokenData['expires_in'],
-                'token_type' => $tokenData['token_type'],
-                'scope' => $tokenData['scope'],
+        try {
+            $request->validate([
+                'userId' => 'required|string',
+                'userType' => 'required|string|in:taxpayer,intermediary',
             ]);
-        } else {
-            return response()->json(['error' => 'Failed to obtain access token'], 500);
+
+            $userId = $request->input('userId');
+            $userType = $request->input('userType');
+
+            Log::info('Fetching token', ['userType' => $userType, 'userId' => $userId]);
+
+            $tokenData = $this->tokenService->getToken($userType, $userId);
+
+            Log::info('Token data received', ['tokenData' => $tokenData ? 'Success' : 'Failed']);
+
+            if ($tokenData && isset($tokenData['access_token'])) {
+                return response()->json([
+                    'access_token' => $tokenData['access_token'],
+                    'expires_in' => $tokenData['expires_in'],
+                    'token_type' => $tokenData['token_type'],
+                    'scope' => $tokenData['scope'],
+                ]);
+            } else {
+                Log::error('Failed to obtain access token', ['tokenData' => $tokenData]);
+                return response()->json(['error' => 'Failed to obtain access token'], 500);
+            }
+        } catch (\Exception $e) {
+            Log::error('Exception in login method', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'An error occurred: ' . $e->getMessage()], 500);
         }
     }
 
