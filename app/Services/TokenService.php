@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\Platform\LoginTaxpayer;
 use App\Http\Controllers\Platform\LoginIntermediary;
@@ -21,34 +20,19 @@ class TokenService
     public function getToken($userType, $userId)
     {
         $key = "token:{$userType}:{$userId}";
-        Log::info('Attempting to get token', ['key' => $key]);
+        $tokenData = Redis::get($key);
 
-        try {
-            $tokenData = Redis::get($key);
-            Log::info('Redis get result', ['tokenData' => $tokenData ? 'Found' : 'Not Found']);
-
-            if (!$tokenData) {
-                Log::info('Token not found in Redis, fetching new token');
-                $tokenData = $this->fetchNewToken($userType);
-                Log::info('New token fetched', ['tokenData' => $tokenData ? 'Success' : 'Failed']);
-
-                if ($tokenData && isset($tokenData['expires_in'])) {
-                    Log::info('Attempting to store new token in Redis');
-                    $result = Redis::setex($key, $tokenData['expires_in'], json_encode($tokenData));
-                    Log::info('Redis setex result', ['result' => $result]);
-                } else {
-                    Log::error('Invalid token data', ['tokenData' => $tokenData]);
-                }
-            } else {
-                Log::info('Token found in Redis');
-                $tokenData = json_decode($tokenData, true);
+        if (!$tokenData) {
+            $tokenData = $this->fetchNewToken($userType);
+            if ($tokenData) {
+                // Store the entire token data
+                Redis::setex($key, $tokenData['expires_in'], json_encode($tokenData));
             }
-
-            return $tokenData;
-        } catch (\Exception $e) {
-            Log::error('Error in getToken method', ['error' => $e->getMessage()]);
-            return null;
+        } else {
+            $tokenData = json_decode($tokenData, true);
         }
+
+        return $tokenData;
     }
 
     private function fetchNewToken($userType)

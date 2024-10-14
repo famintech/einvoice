@@ -19,45 +19,35 @@ class LoginTaxpayer extends Controller
 
     public function login(Request $request)
     {
-        Log::info('Login attempt', $request->all());
+        // Return the request body as a JSON response
+        return response()->json([
+            'received_data' => $request->all()
+        ]);
 
-        try {
-            $request->validate([
-                'userId' => 'required|string',
-                'userType' => 'required|string|in:taxpayer,intermediary',
-            ]);
+        // $request->validate([
+        //     'userId' => 'required|string',
+        //     'userType' => 'required|string|in:taxpayer,intermediary',
+        // ]);
 
-            $userId = $request->input('userId');
-            $userType = $request->input('userType');
+        // $userId = $request->input('userId');
+        // $userType = $request->input('userType');
 
-            Log::info('Fetching token', ['userType' => $userType, 'userId' => $userId]);
+        // $tokenData = $this->tokenService->getToken($userType, $userId);
 
-            $tokenData = $this->tokenService->getToken($userType, $userId);
-
-            Log::info('Token data received', ['tokenData' => $tokenData ? 'Success' : 'Failed']);
-
-            if ($tokenData && isset($tokenData['access_token'])) {
-                return response()->json([
-                    'access_token' => $tokenData['access_token'],
-                    'expires_in' => $tokenData['expires_in'],
-                    'token_type' => $tokenData['token_type'],
-                    'scope' => $tokenData['scope'],
-                ]);
-            } else {
-                Log::error('Failed to obtain access token', ['tokenData' => $tokenData]);
-                return response()->json(['error' => 'Failed to obtain access token'], 500);
-            }
-        } catch (\Exception $e) {
-            Log::error('Exception in login method', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'An error occurred: ' . $e->getMessage()], 500);
-        }
+        // if ($tokenData && isset($tokenData['access_token'])) {
+        //     return response()->json([
+        //         'access_token' => $tokenData['access_token'],
+        //         'expires_in' => $tokenData['expires_in'],
+        //         'token_type' => $tokenData['token_type'],
+        //         'scope' => $tokenData['scope'],
+        //     ]);
+        // } else {
+        //     return response()->json(['error' => 'Failed to obtain access token'], 500);
+        // }
     }
 
     public function getAccessToken()
     {
-        Log::info('Attempting to get access token from external API');
-        // Force log to disk
-        Log::channel('daily')->info('Forced log entry');
         $response = Http::withHeaders([
             'Content-Type' => 'application/x-www-form-urlencoded',
             'Accept' => '*/*',
@@ -70,23 +60,10 @@ class LoginTaxpayer extends Controller
             'scope' => 'InvoicingAPI',
         ]);
 
-        Log::info('Response from external API', [
-            'status' => $response->status(),
-            'body' => $response->body(),
-            'headers' => $response->headers()
-        ]);
-
         if ($response->successful()) {
-            $jsonResponse = $response->json();
-            Log::info('Successful response parsed', ['jsonResponse' => $jsonResponse]);
-            return $jsonResponse;
+            return $response->json();
         }
-
-        Log::error('Failed to obtain access token', [
-            'status' => $response->status(),
-            'body' => $response->body()
-        ]);
-
+    
         return response()->json([
             'error' => 'Failed to obtain access token',
             'status' => $response->status(),
