@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestingController;
 use App\Http\Controllers\Platform\LoginTaxpayer;
+use App\Http\Controllers\Platform\LoginIntermediary;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,4 +24,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/test', [TestingController::class, 'index']);
 
-Route::post('/get-access-token', [LoginTaxpayer::class, 'getAccessToken']);
+Route::post('/get-access-token', [LoginTaxpayer::class, 'login']);
