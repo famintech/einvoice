@@ -23,7 +23,9 @@ class LoginTaxpayer extends Controller
         return response()->json([
             'message' => 'This is a test response',
             'received_data' => $request->all()
-        ]);
+        ])
+        ->header('Content-Type', 'application/json')
+        ->header('X-Debug-Info', 'Response sent from LoginTaxpayer controller');
 
         // $request->validate([
         //     'userId' => 'required|string',
