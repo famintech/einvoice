@@ -2,21 +2,11 @@
 
 namespace App\Http\Controllers\Platform;
 
-use Illuminate\Http\Request;
-use App\Services\TokenService;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 
 class LoginIntermediary extends Controller
 {
-    private $tokenService;
-
-    public function __construct(TokenService $tokenService)
-    {
-        $this->tokenService = $tokenService;
-    }
-
     public function getAccessToken()
     {
         $response = Http::withHeaders([
