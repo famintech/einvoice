@@ -28,3 +28,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/get-access-token', [LoginTaxpayer::class, 'login']);
+
+Route::get('/test-json', function () {
+    return response()->json(['message' => 'This is a test JSON response']);
+});
