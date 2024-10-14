@@ -17,12 +17,6 @@ class LoginMain extends Controller
 
     public function login(Request $request)
     {
-        return response()->json([
-            'message' => 'This is the login method',
-            'received_body' => $request->all(),
-            'content' => $request->getContent(),
-        ]);
-
         $request->validate([
             'userId' => 'required|string',
             'userType' => 'required|string|in:taxpayer,intermediary',
