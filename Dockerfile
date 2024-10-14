@@ -53,6 +53,8 @@ RUN php artisan key:generate --ansi
 # Set permissions for storage and bootstrap/cache
 RUN chmod -R 775 storage bootstrap/cache
 
+RUN chown -R www-data:www-data storage
+
 # Change current user to www-data
 USER www-data
 

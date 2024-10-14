@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestingController;
 use App\Http\Controllers\Platform\LoginTaxpayer;
 use App\Http\Controllers\Platform\LoginIntermediary;
+use Illuminate\Support\Facades\Log;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -32,18 +34,30 @@ Route::get('/test-redis', function () {
 });
 
 Route::get('/test-token-storage', function (TokenService $tokenService) {
+    Log::info('Test token storage route hit');
+
     $testToken = [
         'access_token' => 'test_token_' . time(),
         'expires_in' => 3600,
         'token_type' => 'Bearer',
         'scope' => 'InvoicingAPI'
     ];
-    
-    $result = $tokenService->getToken('taxpayer', 'test_user');
-    
+
+    Log::info('Attempting to store test token', ['testToken' => $testToken]);
+
+    $key = 'token:taxpayer:test_user';
+    $result = Redis::setex($key, 3600, json_encode($testToken));
+
+    Log::info('Redis setex result', ['result' => $result]);
+
+    $storedToken = Redis::get($key);
+
+    Log::info('Retrieved token from Redis', ['storedToken' => $storedToken]);
+
     return [
-        'stored_token' => $result,
-        'test_token' => $testToken
+        'stored_token' => json_decode($storedToken, true),
+        'test_token' => $testToken,
+        'redis_set_result' => $result
     ];
 });
 

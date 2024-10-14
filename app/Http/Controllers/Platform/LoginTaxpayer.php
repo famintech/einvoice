@@ -44,6 +44,8 @@ class LoginTaxpayer extends Controller
     public function getAccessToken()
     {
         Log::info('Attempting to get access token from external API');
+        // Force log to disk
+        Log::channel('daily')->info('Forced log entry');
         $response = Http::withHeaders([
             'Content-Type' => 'application/x-www-form-urlencoded',
             'Accept' => '*/*',
