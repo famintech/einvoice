@@ -19,8 +19,9 @@ class LoginTaxpayer extends Controller
 
     public function login(Request $request)
     {
-        // Return the request body as a JSON response
+
         return response()->json([
+            'message' => 'This is a test response',
             'received_data' => $request->all()
         ]);
 
