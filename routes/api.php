@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestingController;
 use App\Http\Controllers\Platform\LoginTaxpayer;
 use App\Http\Controllers\Platform\LoginIntermediary;
+use Illuminate\Support\Facades\Redis;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,5 +24,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/test', [TestingController::class, 'index']);
+
+Route::get('/test-redis', function () {
+    Redis::set('test_key', 'Hello, Redis!');
+    return Redis::get('test_key');
+});
 
 Route::post('/get-access-token', [LoginTaxpayer::class, 'login']);
