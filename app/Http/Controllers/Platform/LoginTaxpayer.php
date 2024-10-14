@@ -12,19 +12,18 @@ class LoginTaxpayer extends Controller
 {
     private $tokenService;
 
-    public function __construct(TokenService $tokenService)
-    {
-        $this->tokenService = $tokenService;
-    }
+    // public function __construct(TokenService $tokenService)
+    // {
+    //     $this->tokenService = $tokenService;
+    // }
 
     public function login(Request $request)
     {
         return response()->json([
-            'message' => 'This is a test response',
-            'body' => $request->all()
-        ])
-        ->header('Content-Type', 'application/json')
-        ->header('X-Debug-Info', 'Response sent from LoginTaxpayer controller');
+            'message' => 'This is the login method',
+            'received_body' => $request->all(),
+            'content' => $request->getContent(),
+        ]);
 
         // $request->validate([
         //     'userId' => 'required|string',

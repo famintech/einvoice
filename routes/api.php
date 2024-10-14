@@ -33,6 +33,8 @@ Route::get('/test-json', function () {
     return response()->json(['message' => 'This is a test JSON response']);
 });
 
+Route::post('/test-login', [LoginTaxpayer::class, 'login']);
+
 Route::any('/debug-request', function (Request $request) {
     return response()->json([
         'method' => $request->method(),
