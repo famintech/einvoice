@@ -32,3 +32,12 @@ Route::post('/get-access-token', [LoginTaxpayer::class, 'login']);
 Route::get('/test-json', function () {
     return response()->json(['message' => 'This is a test JSON response']);
 });
+
+Route::any('/debug-request', function (Request $request) {
+    return response()->json([
+        'method' => $request->method(),
+        'url' => $request->fullUrl(),
+        'body' => $request->all(),
+        'headers' => $request->headers->all(),
+    ]);
+});
