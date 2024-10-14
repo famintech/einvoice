@@ -3,12 +3,13 @@
 use Illuminate\Http\Request;
 use App\Services\TokenService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Config;
 use App\Http\Controllers\TestingController;
 use App\Http\Controllers\Platform\LoginTaxpayer;
 use App\Http\Controllers\Platform\LoginIntermediary;
-use Illuminate\Support\Facades\Log;
 
 
 /*
@@ -31,6 +32,26 @@ Route::get('/test', [TestingController::class, 'index']);
 Route::get('/test-redis', function () {
     Redis::set('test_key', 'Hello, Redis!');
     return Redis::get('test_key');
+});
+
+Route::get('/config-check', function () {
+    return [
+        'app_env' => Config::get('app.env'),
+        'app_debug' => Config::get('app.debug'),
+        'log_channel' => Config::get('logging.default'),
+        'redis_host' => Config::get('database.redis.default.host'),
+        'redis_port' => Config::get('database.redis.default.port'),
+    ];
+});
+
+Route::get('/test-redis-storage', function () {
+    $testData = ['key' => 'value', 'timestamp' => time()];
+    Redis::set('test_data', json_encode($testData));
+    $retrieved = Redis::get('test_data');
+    return [
+        'stored' => $testData,
+        'retrieved' => json_decode($retrieved, true)
+    ];
 });
 
 Route::get('/test-token-storage', function (TokenService $tokenService) {
