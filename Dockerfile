@@ -55,9 +55,6 @@ RUN chmod -R 775 storage bootstrap/cache
 
 RUN chown -R www-data:www-data storage
 
-RUN mkdir -p /var/log/php-fpm
-COPY php-fpm.conf /usr/local/etc/php-fpm.d/zz-log.conf
-
 # Change current user to www-data
 USER www-data
 
