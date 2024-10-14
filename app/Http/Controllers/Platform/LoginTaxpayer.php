@@ -43,6 +43,7 @@ class LoginTaxpayer extends Controller
 
     public function getAccessToken()
     {
+        Log::info('Attempting to get access token from external API');
         $response = Http::withHeaders([
             'Content-Type' => 'application/x-www-form-urlencoded',
             'Accept' => '*/*',
@@ -55,10 +56,23 @@ class LoginTaxpayer extends Controller
             'scope' => 'InvoicingAPI',
         ]);
 
+        Log::info('Response from external API', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+            'headers' => $response->headers()
+        ]);
+
         if ($response->successful()) {
-            return $response->json();
+            $jsonResponse = $response->json();
+            Log::info('Successful response parsed', ['jsonResponse' => $jsonResponse]);
+            return $jsonResponse;
         }
-    
+
+        Log::error('Failed to obtain access token', [
+            'status' => $response->status(),
+            'body' => $response->body()
+        ]);
+
         return response()->json([
             'error' => 'Failed to obtain access token',
             'status' => $response->status(),
