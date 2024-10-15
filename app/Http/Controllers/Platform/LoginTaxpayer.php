@@ -27,7 +27,7 @@ class LoginTaxpayer extends Controller
             // Filter and keep only the headers you want to pass along
             $relevantHeaders = array_filter($headers, function($key) {
                 return in_array(strtolower($key), [
-                    'x-rate-limit-remaining',
+                    'X-Rate-Limit-Remaining',
                     'x-rate-limit-reset',
                     'x-rate-limit-limit'
                 ]);
