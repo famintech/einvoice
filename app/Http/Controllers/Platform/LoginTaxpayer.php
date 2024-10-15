@@ -21,39 +21,39 @@ class LoginTaxpayer extends Controller
             'scope' => 'InvoicingAPI',
         ]);
 
+        // if ($response->successful()) {
+        //     $headers = $response->headers();
+
+        //     // Filter and keep only the headers you want to pass along
+        //     $relevantHeaders = array_filter($headers, function($key) {
+        //         return in_array(strtolower($key), [
+        //             'X-Rate-Limit-Remaining',
+        //             'x-rate-limit-reset',
+        //             'x-rate-limit-limit'
+        //         ]);
+        //     }, ARRAY_FILTER_USE_KEY);
+
+        //     return response()->json($response->json())
+        //         ->withHeaders($relevantHeaders);
+        // }
+
         if ($response->successful()) {
             $headers = $response->headers();
-            
-            // Filter and keep only the headers you want to pass along
-            $relevantHeaders = array_filter($headers, function($key) {
-                return in_array(strtolower($key), [
-                    'X-Rate-Limit-Remaining',
-                    'x-rate-limit-reset',
-                    'x-rate-limit-limit'
-                ]);
+
+            // Pass through all X-Rate-Limit headers
+            $relevantHeaders = array_filter($headers, function ($key) {
+                return strpos(strtolower($key), 'x-rate-limit') === 0;
             }, ARRAY_FILTER_USE_KEY);
-    
+
             return response()->json($response->json())
                 ->withHeaders($relevantHeaders);
         }
 
-        if ($response->successful()) {
-        $headers = $response->headers();
-        
-        // Pass through all X-Rate-Limit headers
-        $relevantHeaders = array_filter($headers, function($key) {
-            return strpos(strtolower($key), 'x-rate-limit') === 0;
-        }, ARRAY_FILTER_USE_KEY);
-
-        return response()->json($response->json())
-            ->withHeaders($relevantHeaders);
-    }
-    
         return response()->json([
             'error' => 'Failed to obtain access token',
             'status' => $response->status(),
             'body' => $response->body(),
         ], $response->status())
-        ->withHeaders($response->headers());
+            ->withHeaders($response->headers());
     }
 }
