@@ -17,13 +17,13 @@ class TokenService
         $this->loginIntermediary = $loginIntermediary;
     }
 
-    public function getToken($userType, $userId)
+    public function getToken($userType, $userId, $onbehalfof = null)
     {
-        $key = "token:{$userType}:{$userId}";
+        $key = "token:{$userType}:{$userId}" . ($onbehalfof ? ":{$onbehalfof}" : "");
         $tokenData = Redis::get($key);
 
         if (!$tokenData) {
-            $tokenData = $this->fetchNewToken($userType);
+            $tokenData = $this->fetchNewToken($userType, $onbehalfof);
             if ($tokenData) {
                 // Store the entire token data
                 Redis::setex($key, $tokenData['expires_in'], json_encode($tokenData));
@@ -35,12 +35,12 @@ class TokenService
         return $tokenData;
     }
 
-    private function fetchNewToken($userType)
+    private function fetchNewToken($userType, $onbehalfof = null)
     {
         if ($userType === 'taxpayer') {
             $response = $this->loginTaxpayer->getAccessToken();
         } elseif ($userType === 'intermediary') {
-            $response = $this->loginIntermediary->getAccessToken();
+            $response = $this->loginIntermediary->getAccessToken($onbehalfof);
         } else {
             throw new \InvalidArgumentException("Invalid user type: {$userType}");
         }
