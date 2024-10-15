@@ -30,14 +30,27 @@ class LoginIntermediary extends Controller
                 'scope' => 'InvoicingAPI',
             ]);
 
-        if ($response->successful()) {
-            return $response->json();
-        }
-    
-        return response()->json([
-            'error' => 'Failed to obtain access token',
-            'status' => $response->status(),
-            'body' => $response->body(),
-        ], $response->status());
+            if ($response->successful()) {
+                $headers = $response->headers();
+                
+                // Filter and keep only the headers you want to pass along
+                $relevantHeaders = array_filter($headers, function($key) {
+                    return in_array(strtolower($key), [
+                        'x-rate-limit-remaining',
+                        'x-rate-limit-reset',
+                        'x-rate-limit-limit'
+                    ]);
+                }, ARRAY_FILTER_USE_KEY);
+        
+                return response()->json($response->json())
+                    ->withHeaders($relevantHeaders);
+            }
+        
+            return response()->json([
+                'error' => 'Failed to obtain access token',
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ], $response->status())
+            ->withHeaders($response->headers());
     }
 }
