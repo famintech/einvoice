@@ -24,13 +24,9 @@ class LoginTaxpayer extends Controller
         if ($response->successful()) {
             $headers = $response->headers();
             
-            // Filter and keep only the headers you want to pass along
+            // Pass through all X-Rate-Limit headers
             $relevantHeaders = array_filter($headers, function($key) {
-                return in_array(strtolower($key), [
-                    'X-Rate-Limit-Remaining',
-                    'x-rate-limit-reset',
-                    'x-rate-limit-limit'
-                ]);
+                return strpos(strtolower($key), 'x-rate-limit') === 0;
             }, ARRAY_FILTER_USE_KEY);
     
             return response()->json($response->json())
