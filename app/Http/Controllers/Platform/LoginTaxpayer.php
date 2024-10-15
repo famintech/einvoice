@@ -38,16 +38,16 @@ class LoginTaxpayer extends Controller
         }
 
         if ($response->successful()) {
-            $headers = $response->headers();
-            
-            // Pass through all X-Rate-Limit headers
-            $relevantHeaders = array_filter($headers, function($key) {
-                return strpos(strtolower($key), 'x-rate-limit') === 0;
-            }, ARRAY_FILTER_USE_KEY);
-    
-            return response()->json($response->json())
-                ->withHeaders($relevantHeaders);
-        }
+        $headers = $response->headers();
+        
+        // Pass through all X-Rate-Limit headers
+        $relevantHeaders = array_filter($headers, function($key) {
+            return strpos(strtolower($key), 'x-rate-limit') === 0;
+        }, ARRAY_FILTER_USE_KEY);
+
+        return response()->json($response->json())
+            ->withHeaders($relevantHeaders);
+    }
     
         return response()->json([
             'error' => 'Failed to obtain access token',
